@@ -9,7 +9,9 @@ from pathlib import Path
 import os
 import pymysql
 from django.contrib.messages import constants as messages
+from django.core.exceptions import ImproperlyConfigured
 
+# Install MySQLdb compatibility
 pymysql.install_as_MySQLdb()
 
 # =========================
@@ -20,9 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # =========================
 # CORE SETTINGS
 # =========================
+# Secret key – use env var in production, fallback to placeholder for dev
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-placeholder')
+
+# DEBUG – defaults to True for local development
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS','').split(',')
+
+# Allowed hosts – comma‑separated list via env var (empty for dev)
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
 
 # =========================
 # INSTALLED APPS
@@ -68,7 +75,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "accounting.context_processors.site_settings",
-
             ],
         },
     },
@@ -79,33 +85,34 @@ WSGI_APPLICATION = "AccountingProject.wsgi.application"
 # =========================
 # DATABASE
 # =========================
+# In production, all DB credentials must be provided via environment variables.
+# For local development defaults are supplied.
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "accounting_db",
-        "USER": "root",
-        "PASSWORD": "",
-        "HOST": "127.0.0.1",
-        "PORT": "3307",
+        "NAME": os.getenv('DATABASE_NAME', 'accounting_db'),
+        "USER": os.getenv('DATABASE_USER', 'root'),
+        "PASSWORD": os.getenv('DATABASE_PASSWORD', ''),
+        "HOST": os.getenv('DATABASE_HOST', '127.0.0.1'),
+        "PORT": os.getenv('DATABASE_PORT', '3307'),
     }
 }
+
+# Ensure production does not silently fall back to the local DB.
+if not DEBUG:
+    required_vars = ['DATABASE_NAME', 'DATABASE_USER', 'DATABASE_PASSWORD', 'DATABASE_HOST', 'DATABASE_PORT']
+    missing = [var for var in required_vars if not os.getenv(var)]
+    if missing:
+        raise ImproperlyConfigured(f"Missing required DB env vars for production: {', '.join(missing)}")
 
 # =========================
 # PASSWORD VALIDATION
 # =========================
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # =========================
@@ -120,7 +127,7 @@ USE_TZ = True
 # STATIC & MEDIA
 # =========================
 STATIC_URL = "static/"
-# STATICFILES_DIRS = [BASE_DIR / "static"]  
+# STATICFILES_DIRS = [BASE_DIR / "static"]  # Uncomment if you have additional static dirs
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
@@ -138,16 +145,14 @@ LOGOUT_REDIRECT_URL = "/login/"
 # =========================
 # EMAIL CONFIGURATION
 # =========================
-# Development: show emails in terminal 
+# Development: print emails to console
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-
 
 # =========================
 # SESSION SETTINGS (Remember Me)
 # =========================
-SESSION_COOKIE_AGE = 1209600  
-SESSION_COOKIE_SECURE = False  
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
@@ -165,8 +170,8 @@ MESSAGE_TAGS = {
 # =========================
 # FILE UPLOAD LIMITS
 # =========================
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024  
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024 
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # =========================
 # LOGGING
