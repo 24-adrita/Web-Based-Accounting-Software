@@ -125,6 +125,31 @@ The default configuration uses MySQL (see `settings.py`). You can switch to SQLi
 - Ensure static assets (CSS/JS/images) render correctly.
 - Confirm that the database is persisting data across restarts.
 
+## Application Screenshots
+
+### Dashboard
+![Dashboard - Light Theme](screenshots/dashboard_light.png)
+![Dashboard - Dark Theme](screenshots/dashboard_dark.png)
+![Dashboard - Blue Theme](screenshots/dashboard_blue.png)
+![Dashboard - Green Theme](screenshots/dashboard_green.png)
+![Dashboard - Purple Theme](screenshots/dashboard_purple.png)
+
+### Authentication
+![Login](screenshots/login.png)
+![Registration](screenshots/register.png)
+
+### Accounting Modules
+![Chart of Accounts](screenshots/chart_of_accounts.png)
+![Journal Create](screenshots/journal_create.png)
+![Journal List](screenshots/journal_list.png)
+![Account Ledger](screenshots/account_ledger.png)
+![Ledger Dashboard](screenshots/ledger_dashboard.png)
+
+### Financial Reports
+![Balance Sheet](screenshots/balance_sheet.png)
+![Income Statement](screenshots/income_statement.png)
+![Trial Balance](screenshots/trial_balance.png)
+
 ## 📈 Future Improvements (not yet implemented)
 - **Dockerisation** – container image for easier local/CI deployment.
 - **Unit & Integration Tests** – increase coverage.
