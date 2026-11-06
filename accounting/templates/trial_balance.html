@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    /* ========================================
+       THEME-AWARE TRIAL BALANCE STYLES
+    ======================================== */
+    
+    /* Body */
+    body {
+        background-color: var(--bg-body);
+        color: var(--dark-text);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-top: 20px;
+        animation: fadeInDown 0.6s ease-out;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+    }
+    
+    .page-subtitle {
+        color: var(--light-text);
+    }
+
+    /* Print Button */
+    .btn-print {
+        background-color: var(--bg-card);
+        color: var(--dark-text);
+        border: 1px solid var(--border-color);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-print:hover {
+        background-color: var(--border-color);
+        color: var(--dark-text);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Report Card */
+    .report-card {
+        background-color: var(--bg-card);
+        border-radius: 16px;
+        padding: 30px;
+        color: var(--dark-text);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        animation: fadeInUp 0.7s ease-out;
+    }
+
+    /* Filter Box */
+    .filter-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        animation: slideInLeft 0.6s ease-out;
+    }
+    
+    .filter-card label {
+        color: var(--dark-text);
+    }
+
+    /* Form Controls */
+    .form-control {
+        background-color: var(--bg-card) !important;
+        color: var(--dark-text) !important;
+        border-color: var(--border-color) !important;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        background-color: var(--bg-card) !important;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: white !important;
+    }
+    
+    .btn-outline-light {
+        background-color: transparent !important;
+        color: var(--dark-text) !important;
+        border-color: var(--border-color) !important;
+    }
+    
+    .btn-outline-light:hover {
+        background-color: var(--border-color) !important;
+    }
+
+    /* Table Styling */
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .custom-table thead th {
+        color: var(--light-text);
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--border-color);
+        background-color: var(--bg-card);
+    }
+
+    .custom-table tbody tr {
+        transition: all 0.3s ease;
+        animation: fadeIn 0.5s ease-out backwards;
+    }
+    
+    .custom-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+    .custom-table tbody tr:nth-child(2) { animation-delay: 0.15s; }
+    .custom-table tbody tr:nth-child(3) { animation-delay: 0.2s; }
+    .custom-table tbody tr:nth-child(4) { animation-delay: 0.25s; }
+    .custom-table tbody tr:nth-child(5) { animation-delay: 0.3s; }
+    .custom-table tbody tr:nth-child(6) { animation-delay: 0.35s; }
+    .custom-table tbody tr:nth-child(7) { animation-delay: 0.4s; }
+    .custom-table tbody tr:nth-child(8) { animation-delay: 0.45s; }
+    
+    .custom-table tbody tr:hover {
+        background-color: var(--border-color);
+        transform: translateX(5px);
+    }
+
+    .custom-table td {
+        padding: 15px 10px;
+        font-weight: 500;
+        color: var(--dark-text);
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        background-color: var(--bg-card);
+    }
+
+    .account-name {
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    .amount {
+        font-family: 'Inter', monospace;
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    /* ===== SOFT/LIGHT BADGES (Like Your First Version) ===== */
+    .badge-soft {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        border: 1px solid transparent;
+        transition: transform 0.2s ease;
+    }
+    
+    .badge-soft:hover {
+        transform: scale(1.05);
+    }
+
+    /* Light/Soft Badge Colors (Professional Style) */
+    .badge-Asset { 
+        background-color: #dbeafe; /* Light blue */
+        color: #1e40af; /* Dark blue */
+        border-color: #bfdbfe;
+    }
+    
+    .badge-Liability { 
+        background-color: #fee2e2; /* Light red */
+        color: #991b1b; /* Dark red */
+        border-color: #fecaca;
+    }
+    
+    .badge-Equity { 
+        background-color: #f3e8ff; /* Light purple */
+        color: #6b21a8; /* Dark purple */
+        border-color: #e9d5ff;
+    }
+    
+    .badge-Revenue { 
+        background-color: #dcfce7; /* Light green */
+        color: #166534; /* Dark green */
+        border-color: #bbf7d0;
+    }
+    
+    .badge-Expense { 
+        background-color: #ffedd5; /* Light orange */
+        color: #9a3412; /* Dark orange */
+        border-color: #fed7aa;
+    }
+    
+    .badge-Other { 
+        background-color: #f3f4f6; /* Light grey */
+        color: #374151; /* Dark grey */
+        border-color: #e5e7eb;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        animation: bounceIn 0.8s ease-out;
+    }
+    
+    .balanced {
+        background-color: var(--success-color);
+        color: white;
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    }
+    
+    .unbalanced {
+        background-color: var(--danger-color);
+        color: white;
+        box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Total Row */
+    .total-row td {
+        background-color: var(--border-color) !important;
+        font-weight: 800;
+        color: var(--dark-text) !important;
+        padding: 20px 10px;
+        border-top: 3px solid var(--primary-color) !important;
+        border-bottom: none;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    /* Text Muted */
+    .text-muted {
+        color: var(--light-text) !important;
+    }
+    
+    /* Border Top */
+    .border-top {
+        border-color: var(--border-color) !important;
+    }
+
+    /* ========================================
+       ANIMATIONS
+    ======================================== */
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.85;
+        }
+    }
+
+    /* Print adjustments */
+    @media print {
+        body { 
+            background-color: white !important; 
+            color: black; 
+        }
+        .btn-print, .navbar, .filter-card, .theme-switcher { 
+            display: none; 
+        }
+        .report-card { 
+            box-shadow: none; 
+            border: 1px solid #ccc; 
+        }
+        * {
+            animation: none !important;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Financial Reports</h1>
+            <p class="page-subtitle mb-0">Overview of your Trial Balance</p>
+        </div>
+        <button onclick="window.print()" class="btn-print">
+            <i class="bi bi-printer"></i> Print Report
+        </button>
+    </div>
+
+    <div class="filter-card">
+        <form method="get" class="d-flex align-items-center gap-3 w-100">
+            <label class="fw-bold m-0" style="white-space: nowrap;">
+                <i class="bi bi-calendar3 me-2"></i>Filter up to:
+            </label>
+            <input type="date" name="date" class="form-control" style="max-width: 200px;" value="{{ selected_date }}">
+            
+            <button type="submit" class="btn btn-primary fw-bold">
+                Apply Filter
+            </button>
+            
+            {% if selected_date %}
+            <a href="?" class="btn btn-outline-light">
+                <i class="bi bi-x-lg"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="report-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0" style="color: var(--dark-text);">Trial Balance</h3>
+            <span class="text-muted small">
+                {% if selected_date %}
+                    Report Date: <strong>{{ selected_date }}</strong>
+                {% else %}
+                    As of: {{ "now"|date:"F d, Y" }}
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Account Name</th>
+                        <th style="width: 20%;">Type</th>
+                        <th style="width: 20%; text-align: right;">Debit</th>
+                        <th style="width: 20%; text-align: right;">Credit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in trial_balance %}
+                    <tr>
+                        <td class="account-name">{{ item.account }}</td>
+                        <td>
+                            <span class="badge-soft badge-{{ item.type }}">
+                                {{ item.type }}
+                            </span>
+                        </td>
+                        <td class="text-end amount">
+                            {% if item.debit > 0 %}
+                                {{ item.debit|floatformat:2 }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end amount">
+                            {% if item.credit > 0 %}
+                                {{ item.credit|floatformat:2 }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            No transactions found for this period.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2" class="text-end text-uppercase">Total</td>
+                        <td class="text-end">{{ total_debit|floatformat:2 }}</td>
+                        <td class="text-end">{{ total_credit|floatformat:2 }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+            {% if total_debit == total_credit %}
+                <div class="status-badge balanced">
+                    <i class="bi bi-check-circle-fill me-2"></i> Balanced
+                </div>
+            {% else %}
+                <div class="status-badge unbalanced">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Unbalanced
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="text-center mt-5 pb-5">
+        <a href="{% url 'dashboard' %}" class="text-decoration-none small" style="color: var(--light-text);">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock content %}
